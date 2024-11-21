@@ -1,0 +1,3 @@
+{
+ :extra-scripts {:root "/tmp" :files ["/scripts/redirect.js"]}
+}
