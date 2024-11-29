@@ -1,23 +1,11 @@
 ### Example file for building REMS docker image and running it
 # See docs/installing-upgrading.md for more info
 
-version: '2'
-services:
+networks:
+  nw_rems:
+    driver: bridge
 
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: rems
-    environment:
-      PORT: 3000
-      DATABASE_URL: postgresql://db:5432/rems?user=rems&password=remspassword
-      AUTHENTICATION: :fake
-      PUBLIC_URL: http://localhost:3000/
-    mem_reservation: 200m
-    mem_limit: 2000m
-    ports:
-      - "127.0.0.1:3000:3000"
+services:
 
   db:
     image: postgres:13
@@ -26,5 +14,39 @@ services:
       POSTGRES_PASSWORD: remspassword
     mem_reservation: 30m
     mem_limit: 150m
+    networks:
+      - nw_rems
+
+  # this will be built from Docker file with:
+  # docker-compose -f docker-compose-build.yml build
+  rems_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: rems
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgresql://db:5432/rems?user=rems&password=remspassword
+      AUTHENTICATION: :fake
+      PUBLIC_URL: http://localhost/
+    mem_reservation: 200m
+    mem_limit: 2000m
+    networks:
+      - nw_rems
+    depends_on:
+      - db
+
+  # reverse proxy
+  nginx:
+    image: nginx:latest
+    container_name: nginx_container
+    # nginx config refers to rems service so it needs to exist first:
+    depends_on:
+      - rems_app
     ports:
-      - "127.0.0.1:5432:5432"
+      - "80:80"
+    volumes:
+      # this config simply routes / location to rems_app:3000 using proxy_pass
+      - ./resources/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - nw_rems
