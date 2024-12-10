@@ -20,6 +20,9 @@
  ;; and in the `iss` and `source` of generated GA4GH visas (see /api/permissions).
  :public-url nil
 
+ ;; Application base path. Defaults to "" but can be changed to something else e.g. "/app".
+ :app-path "/app"
+
  ;; When :nrepl-port is set, the application starts an nREPL server on load.
  :nrepl-port nil
 

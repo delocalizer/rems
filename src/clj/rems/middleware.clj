@@ -57,7 +57,7 @@
 (defn wrap-context [handler]
   (fn [request]
     (binding [context/*request* (assoc request :request-id (random-uuid))
-              context/*root-path* (:app-context env)
+              context/*app-path* (:app-path env)
               context/*roles* (set/union
                                (when context/*user*
                                  (set/union (rems.db.roles/get-roles (getx-user-id))

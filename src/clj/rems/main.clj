@@ -11,6 +11,7 @@
             [rems.application.search :as search]
             [rems.common.git :as git]
             [rems.config :refer [env]]
+            [rems.context :as context]
             [rems.db.api-key]
             [rems.db.applications]
             [rems.db.core :as db]
@@ -93,14 +94,15 @@
   (log/info "Caches refreshed"))
 
 (defn start-app [& args]
-  (doseq [component (-> args
-                        (parse-opts cli-options)
-                        mount/start-with-args
-                        :started)]
-    (log/info component "started"))
-  (.addShutdownHook (Runtime/getRuntime) (Thread. stop-app))
-  (validate/validate)
-  (refresh-caches))
+  (binding [context/*app-path* (or (:app-path env) "/")]
+    (doseq [component (-> args
+                          (parse-opts cli-options)
+                          mount/start-with-args
+                          :started)]
+      (log/info component "started"))
+    (.addShutdownHook (Runtime/getRuntime) (Thread. stop-app))
+    (validate/validate)
+    (refresh-caches)))
 
 ;; The default of the JVM is to exit with code 128+signal. However, we
 ;; shut down gracefully on SIGINT and SIGTERM due to the exit hooks
