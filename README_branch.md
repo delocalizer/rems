@@ -16,3 +16,22 @@ I would like a configuration point base-url that defaults to / but can be change
 > The single-page app routes must all support this. Possibly Accountant "interceptor" could handle removing the app path from the path and then just re-use the existing route definitions. (see Secretary and Accountant in app.cljs
 > There are many places within the front-end \*.cljs files where a URL is produced or manipulated, and these should either be changed to use relative URLs or generate (using config) a proper URL including app path.
 > The tests should test this new feature, likely using browser tests.
+
+## Dev notes
+
+Back-end:
+```
+lein run
+```
+
+Front-end:
+```
+lein shadow-watch
+```
+
+Or from the REPL:
+```
+lein repl
+...
+=>rems (start-app)
+```
